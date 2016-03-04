@@ -1,0 +1,22 @@
+{
+  "name": "com.falkolab.lvmc",
+  "version": "1.0.0",
+  "description": "Multicolumn ListView helper library",
+  "main": "./index.js",
+  "titaniumManifest": {
+    "name": "Multicolumn ListView",
+    "moduleid": "com.falkolab.lvmc",
+    "guid": "cd9a93d1-e25e-210e-464b-bf52b492b75e"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "titaniumifier",
+    "titanium",
+    "ListView",
+    "multicolumn"
+  ],
+  "author": "Andrey Tkachenko aka falkolab",
+  "license": "MIT"
+}
