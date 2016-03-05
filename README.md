@@ -45,7 +45,7 @@ Example:
 
 ## Methods
 
-You can use similar helper methods from this library like ListView/ListSection but place list or section as first parameter.
+You can use similar helper methods from this library like ListView/ListSection but place `list` or `section` instance as first parameter.
 
 ### ListView methods
 

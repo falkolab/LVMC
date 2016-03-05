@@ -1,3 +1,10 @@
+/* Multicolumn ListView helper library for Titanium SDK
+ *
+ * Copyright (C) 2016 Tkachenko Andrey
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
 
 exports.createListView = function(opts) {
 	if (opts.sections) {
