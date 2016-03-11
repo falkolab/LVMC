@@ -1,6 +1,6 @@
 {
   "name": "com.falkolab.lvmc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Multicolumn ListView helper library",
   "main": "./index.js",
   "titaniumManifest": {

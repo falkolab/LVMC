@@ -28,7 +28,7 @@ exports.createListView = function(opts) {
 
 		// to preserve original templates set to be unchanged
 		opts.templates = _.extend({}, opts.templates, templates);
-		//printDebug(opts.templates, 'templates.json');
+
 
 		if (Ti.Platform.osname == 'android') {
 			for (var binding in opts.templates) {
@@ -180,14 +180,18 @@ exports.appendItems = function(section, items, animation, columns /* optional */
 
 		var offset = 0, currentItems = section.getItems(), last = _.last(currentItems);
 		if(last) {
-			offset = last.properties.originalItems.length % columns;
+			offset = columns % last.properties.originalItems.length;
+			if(offset) {
+				items = _.clone(items);
+				var firstChunk = items.splice(0, offset);
+				var orig = clone(last.properties.originalItems);
+				var transformed = transformDataItems(orig.concat(firstChunk), columns, defaultItemTemplate);
+				if(transformed) {
+					section.replaceItemsAt(currentItems.length-1, 1, transformed);
+				}
+			}
 		}
-
-		items = transformDataItems(items, columns, defaultItemTemplate, offset);
-
-		if(last && offset) {
-			section.updateItemAt(currentItems.length-1, _.extend(clone(last), items.shift()));
-		}
+		items = transformDataItems(items, columns, defaultItemTemplate);
 	}
 
 	section.appendItems(items, animation);
@@ -344,10 +348,7 @@ function validateNotTransformedItems(items) {
 	});
 }
 
-function transformDataItems(items, columns, defaultItemTemplate, offset) {
-	var firstChunk;
-	offset = offset || 0;
-
+function transformDataItems(items, columns, defaultItemTemplate) {
 	// to preserve original items unchanged
 	//items = clone(items);
 
@@ -359,20 +360,11 @@ function transformDataItems(items, columns, defaultItemTemplate, offset) {
 		});
 	}
 
-	if (offset < columns) {
-		firstChunk = items.splice(offset, columns - offset);
-	}
-
 	var chunks = _.chain(items).groupBy(function(element, index) {
 		return Math.floor(index / columns);
 	}).toArray().value();
 
-	if (firstChunk) {
-		chunks.unshift(firstChunk);
-	}
-
 	return _.map(chunks, function(itemsChunk) {
-
 		var dataItem = {
 			template : 'extlist@' + _.map(itemsChunk, function(item) {return item.template || defaultItemTemplate;}).join(exports.DIVIDER),
 			properties : {
@@ -408,7 +400,7 @@ function transformTemplates(templates, columns) {
 			}
 		} else {
 			// it need for index conversion in fixEvent
-			template.bindId = '_' + (index++) + suffix;
+			template.bindId = 'extlist@' + (index++) + suffix;
 		}
 
 		if (template.childTemplates) {
@@ -459,14 +451,15 @@ function transformTemplates(templates, columns) {
 
 			var template = {
 				properties : {
-					name : name
+					name : name,
+					id: name
 				},
 				childTemplates : [containerTemplate]
 			};
 
-			if (names.length == 1) {
-				_.extend(template.properties, _.omit(clone(templates[names[0]].properties), 'name'));
-			}
+			// if (names.length == 1) {
+				// _.extend(template.properties, _.omit(clone(templates[names[0]].properties), 'name'));
+			// }
 
 			containerTemplate.childTemplates = _.map(combination, function(templateName, index) {
 				var itemContainerTemplate = {
@@ -474,8 +467,7 @@ function transformTemplates(templates, columns) {
 					bindId : 'itemContainer@' + index,
 					properties : {
 						height : Ti.UI.SIZE,
-						width : Ti.UI.SIZE,
-						left : 0
+						width : Ti.UI.SIZE
 					}
 				};
 
