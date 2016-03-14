@@ -42,16 +42,15 @@ Example #1:
         require('com.falkolab.lvmc').transformEvent(evt);
         alert('`itemclick` event:\n'+ JSON.stringify(_.omit(evt, 'source', 'section'), null, '\t'));
     });
-    
+
 Example #2:
 
     list.addEventListener('itemclick', function(evt) {
-	    var lvmc = require('com.falkolab.lvmc');
-	    lvmc.transformEvent(evt);
-	    var section = lvmc.wrap(evt.section);
-	    var dataItem = section.getItemAt(evt.itemIndex);
+	    require('com.falkolab.lvmc').transformEvent(evt);
+        // no need to wrap section if you use `transformEvent`
+	    var dataItem = evt.section.getItemAt(evt.itemIndex);
 	    ...
-    	section.updateItemAt(evt.itemIndex, dataItem);
+    	evt.section.updateItemAt(evt.itemIndex, dataItem);
     }
 
 ## Methods

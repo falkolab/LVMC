@@ -62,19 +62,25 @@ exports.DIVIDER = '@';
 
 exports.wrap = function(obj) {
 	var methods;
-	if(obj.apiName == 'Ti.UI.ListSection') {
+	if(obj.apiName == 'Ti.UI.ListSection' && !_.isUndefined(obj.columns)) {
 		methods = ['setItems', 'getItems', 'getItemAt', 'appendItems', 'insertItemsAt', 'replaceItemsAt', 'deleteItemsAt', 'updateItemAt'];
-	} else if(obj.apiName == 'Ti.UI.ListView') {
+	} else if(obj.apiName == 'Ti.UI.ListView' && !_.isUndefined(obj.columns)) {
 		methods = ['appendSection', 'setMarker', 'addMarker'];
+	} else {
+		return obj;
 	}
+
     var self = this;
-	if(methods) {
-		return _.extend({obj: obj}, _.chain(methods).map(function(methodName) {
-			return [methodName, function() {
-				return self[methodName].apply(self, [this.obj].concat(Array.prototype.slice.call(arguments)));
-			}];
-		}).object().value());
-	}
+	var wrapped = _.extend({obj: obj}, _.chain(methods).map(function(methodName) {
+		return [methodName, function() {
+			return self[methodName].apply(self, [this.obj].concat(Array.prototype.slice.call(arguments)));
+		}];
+	}).object().value());
+
+	wrapped.columns = obj.columns;
+	wrapped.defaultItemTemplate = obj.columns;
+
+	return wrapped;
 };
 
 // ***********************
@@ -112,8 +118,6 @@ exports.transformEvent = function(evt, columns /* optional */) {
 	}
 
 	if(evt.section) {
-		var section = evt.section;
-
 		columns = columns || evt.section.columns;
 		if(columns) {
 			if(evt.bindId) {
@@ -125,6 +129,7 @@ exports.transformEvent = function(evt, columns /* optional */) {
 					}
 				}
 			}
+			evt.section = this.wrap(evt.section);
 		}
 	}
 
